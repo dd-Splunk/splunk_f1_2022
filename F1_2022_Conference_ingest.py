@@ -31,10 +31,22 @@ parser = argparse.ArgumentParser(description="Splunk DataDrivers")
 parser.add_argument("--hostname", help="Hostname", default="host_1")
 parser.add_argument("--player", help="Player Name", default="Drivey McDriverface")
 parser.add_argument("--port", help="UDP Port", type=int, default=20777)
-parser.add_argument("--o11y", help="Send data to O11y Cloud", choices=["yes", "no"], default="no")
-parser.add_argument("--splunk", help="Send data to Splunk Enterprise/Cloud", choices=["yes", "no"], default="yes")
+parser.add_argument(
+    "--o11y", help="Send data to O11y Cloud", choices=["yes", "no"], default="no"
+)
+parser.add_argument(
+    "--splunk",
+    help="Send data to Splunk Enterprise/Cloud",
+    choices=["yes", "no"],
+    default="yes",
+)
 # mode should be "Spectator" to grab all cars, "Solo" to only grab data for the player car
-parser.add_argument("--mode", help="Spectator or Solo Mode", choices=["spectator", "solo"], default="spectator")
+parser.add_argument(
+    "--mode",
+    help="Spectator or Solo Mode",
+    choices=["spectator", "solo"],
+    default="spectator",
+)
 args = vars(parser.parse_args())
 
 hostname = args["hostname"]
@@ -43,7 +55,10 @@ mode = args["mode"]
 
 sesh = requests.Session()
 retries = Retry(total=10, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-sesh.mount("https://", HTTPAdapter(pool_connections=80, pool_maxsize=80, max_retries=0, pool_block=False))
+sesh.mount(
+    "https://",
+    HTTPAdapter(pool_connections=80, pool_maxsize=80, max_retries=0, pool_block=False),
+)
 
 # Open config file for read
 config = configparser.ConfigParser()
@@ -57,11 +72,11 @@ splunk_hec_token = config.get("ingest_settings", "splunk_hec_token")
 # SIM variables
 sim_token = config.get("ingest_settings", "sim_token")
 sim_endpoint = config.get("ingest_settings", "ingest_endpoint")
-# Telemetry varilables     
+# Telemetry varilables
 motion = config.getboolean("telemetry_settings", "motion")
 telemetry = config.getboolean("telemetry_settings", "telemetry")
-lap = config.getboolean("telemetry_settings","lap")
-status = config.getboolean("telemetry_settings","status")
+lap = config.getboolean("telemetry_settings", "lap")
+status = config.getboolean("telemetry_settings", "status")
 
 client = signalfx.SignalFx(ingest_endpoint=sim_endpoint)
 ingest = client.ingest(sim_token)
@@ -70,7 +85,7 @@ print("Hostname: " + args["hostname"])
 print("Player Name: " + args["player"])
 print("UDP Port: " + str(args["port"]))
 print("Splunk O11y Cloud Data: " + args["o11y"])
-print("Splunk Enterprise/Cloud Data: " +args["splunk"])
+print("Splunk Enterprise/Cloud Data: " + args["splunk"])
 print("Solo or Spectator: " + args["mode"])
 print("Debug: " + str(debug))
 print("Splunk HEC Endpoint: " + splunk_hec_ip)
@@ -90,7 +105,7 @@ player_dict = {
     "nationality": 13,
     "race_number": 6,
     "team_id": 3,
-    "your_telemetry": 1
+    "your_telemetry": 1,
 }
 
 player_info = [player_dict]
@@ -103,7 +118,7 @@ for i in range(1, 21):
             "current_sector": 0,
             "current_lap": 1,
             "lap_event": "none",
-            "lap_event_count": 0
+            "lap_event_count": 0,
         }
     ]
 
@@ -137,13 +152,10 @@ sim_metrics = [
     "tyres_surface_temperature1",
     "tyres_surface_temperature2",
     "tyres_surface_temperature3",
-    "tyres_surface_temperature4"
+    "tyres_surface_temperature4",
 ]
 
-sim_dimensions = [
-    "name",
-    "player_name"
-]
+sim_dimensions = ["name", "player_name"]
 
 
 def lookup_packet_id(packet_id):
@@ -170,19 +182,27 @@ def lookup_packet_id(packet_id):
 def send_metric(f1_metrics, f1_dimensions):
     print("sim metric sent")
     telemetry_json = []
-    f1_dimensions['f1-2022-hostname'] = hostname
+    f1_dimensions["f1-2022-hostname"] = hostname
 
     for key, value in f1_metrics.items():
-        telemetry_json.append({"metric": "f1_2022." + key, "value": value, "dimensions": f1_dimensions})
+        telemetry_json.append(
+            {"metric": "f1_2022." + key, "value": value, "dimensions": f1_dimensions}
+        )
 
     ingest.send(gauges=telemetry_json)
 
 
 def send_dims_and_metrics(f1_json):
-    dimensions = [{key: car_dict[key] for key in sim_dimensions if key in car_dict} for car_dict in f1_json]
+    dimensions = [
+        {key: car_dict[key] for key in sim_dimensions if key in car_dict}
+        for car_dict in f1_json
+    ]
 
-    metrics = [{key: car_dict[key] for key in sim_metrics if key in car_dict} for car_dict in f1_json]
-    
+    metrics = [
+        {key: car_dict[key] for key in sim_metrics if key in car_dict}
+        for car_dict in f1_json
+    ]
+
     for f1_metrics, f1_dimensions in zip(metrics, dimensions):
         if len(f1_metrics) >= 1:
             # Send current row to SIM
@@ -206,7 +226,7 @@ def send_hec_json(data, packet_id):
     event["event"] = data
 
     hec_payload = hec_payload + json.dumps(event)
-    
+
     url = str(splunk_hec_ip + ":" + splunk_hec_port + "/services/collector")
     header = {"Authorization": "{}".format("Splunk " + splunk_hec_token)}
 
@@ -216,7 +236,7 @@ def send_hec_json(data, packet_id):
     except requests.exceptions.HTTPError as err:
         print(err)
         print("Packet ID affected: " + lookup_packet_id(packet_id))
-    
+
 
 # function to send multiple events to splunk enterprise env
 @background.task
@@ -261,8 +281,21 @@ def flatten_fast(data):
     car_index = 0
     for entry in data:
         blank_dict = {}
-        blank_dict.update({element: entry[element] for element in entry if not isinstance(entry[element], list)})
-        multi_value_fields = {element: {element + str(ind + 1): value for ind, value in enumerate(entry[element])} for element in entry if isinstance(entry[element], list)}
+        blank_dict.update(
+            {
+                element: entry[element]
+                for element in entry
+                if not isinstance(entry[element], list)
+            }
+        )
+        multi_value_fields = {
+            element: {
+                element + str(ind + 1): value
+                for ind, value in enumerate(entry[element])
+            }
+            for element in entry
+            if isinstance(entry[element], list)
+        }
 
         for field in multi_value_fields:
             blank_dict.update(multi_value_fields[field])
@@ -396,13 +429,17 @@ def merge_car_lap(data, header, playerCarIndex):
                     }
                 )
 
-                info_buffer.update({"lap_event_count": info_buffer["lap_event_count"] + 1})
+                info_buffer.update(
+                    {"lap_event_count": info_buffer["lap_event_count"] + 1}
+                )
             else:
                 entry.update({"lap_event": "none"})
                 info_buffer.update({"lap_event": "none"})
                 info_buffer.update({"lap_event_count": 0})
 
-        info_buffer.update({"current_sector": entry["sector"], "current_lap": entry["current_lap_num"]})
+        info_buffer.update(
+            {"current_sector": entry["sector"], "current_lap": entry["current_lap_num"]}
+        )
         entry.update({"lap_event": info_buffer["lap_event"]})
 
     # lap_info +[{'current_sector': 0,
@@ -453,7 +490,7 @@ def merge_session(data, header, playerCarIndex):
         entry.update({"total_laps": data["total_laps"]})
         entry.update({"track_temperature": data["track_temperature"]})
         entry.update({"track_length": data["track_length"]})
-        #entry.update({"spectator_car_index": data["spectator_car_index"]})
+        # entry.update({"spectator_car_index": data["spectator_car_index"]})
         """
         entry.update({"gamePaused": data["gamePaused"]})
         entry.update({"isSpectating": data["isSpectating"]})
@@ -582,7 +619,7 @@ def massage_data(data):
     if packet_id == 9:
         merged_data = merge_lobby(data, header, playerCarIndex)
 
-    merged_data = [entry for entry in merged_data if entry['name']!=""]
+    merged_data = [entry for entry in merged_data if entry["name"] != ""]
     # merged_data = merged_data[merged_data['name']!=""]
 
     if debug == True:
@@ -598,14 +635,12 @@ def massage_data(data):
         send_dims_and_metrics(merged_data)
 
 
-
-
 # Initialise session
 startup_payload = {
     "message": "Script Starting",
     "description": "Initialising Script",
-    "checkpoint_1_data_received": datetime.now().timestamp()
-    }
+    "checkpoint_1_data_received": datetime.now().timestamp(),
+}
 
 if args["splunk"] == "yes":
     send_hec_batch([startup_payload], 99)
