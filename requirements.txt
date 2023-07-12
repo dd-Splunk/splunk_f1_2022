@@ -1,0 +1,6 @@
+background
+f1-22-telemetry
+PyYAML
+requests
+signalfx
+splunk-opentelemetry[all]
