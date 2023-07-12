@@ -133,6 +133,7 @@ dmypy.json
 
 # MacOS
 .DS_Store
+__MACOSX/
 
 # Project specific
 settings.ini
