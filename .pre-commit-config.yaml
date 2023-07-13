@@ -5,11 +5,14 @@ repos:
     rev: v4.4.0
     hooks:
     -   id: trailing-whitespace
+    -   id: check-case-conflict
+    -   id: mixed-line-ending
     -   id: end-of-file-fixer
     -   id: check-json
     -   id: check-yaml
     -   id: check-added-large-files
     -   id: requirements-txt-fixer
+
 -   repo: https://github.com/psf/black
     rev: 23.7.0
     hooks:
@@ -18,9 +21,23 @@ repos:
     rev: 6.0.0
     hooks:
     -   id: flake8
-        args: [--max-line-length=90]
+        args: [--max-line-length=88, --ignore=D103]
+        additional_dependencies: [
+            'flake8-blind-except',
+            'flake8-docstrings',
+            'flake8-bugbear',
+            'flake8-sfs',
+            'flake8-comprehensions',
+            'flake8-implicit-str-concat',
+            'pydocstyle>=5.0.0',
+        ]
 
 -   repo: https://github.com/timothycrosley/isort
     rev: 5.12.0
     hooks:
     -   id: isort
+-   repo: https://github.com/econchick/interrogate
+    rev: 1.5.0
+    hooks:
+      - id: interrogate
+        args: [-vv, -i, --fail-under=80]
