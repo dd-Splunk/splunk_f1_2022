@@ -1,5 +1,4 @@
-##############################################################################
-#                Custom Code to run F1 Ingest as a Forwarding Script
+"""Custom Code to run F1 Ingest as a Forwarding Script.."""
 import argparse
 import configparser
 import json
@@ -41,13 +40,18 @@ parser.add_argument(
     choices=["yes", "no"],
     default="yes",
 )
-# mode should be "Spectator" to grab all cars, "Solo" to only grab data for the player car
+
 parser.add_argument(
     "--mode",
     help="Spectator or Solo Mode",
     choices=["spectator", "solo"],
     default="spectator",
 )
+"""
+    mode should be
+    "Spectator" to grab all cars,
+    "Solo" to only grab data for the player car
+"""
 args = vars(parser.parse_args())
 
 hostname = args["hostname"]
@@ -96,8 +100,8 @@ print("Car motion enabled: " + str(motion))
 print("Car lap enabled: " + str(lap))
 print("Car status enabled: " + str(status))
 
-#########################################
-# Set up global variables and data stores
+
+"""Set up global variables and data stores."""
 
 player_dict = {
     "ai_controlled": 1,
@@ -113,7 +117,7 @@ player_info = [player_dict]
 
 lap_info = []
 
-for i in range(1, 21):
+for _i in range(1, 21):
     lap_info = lap_info + [
         {
             "current_sector": 0,
@@ -123,9 +127,10 @@ for i in range(1, 21):
         }
     ]
 
-#########################################
-# Set up lists of SIM Metrics and Dimensions
-# This is taylored for F1 2022 Telemetry format
+"""
+    Set up lists of SIM Metrics and Dimensions
+    This is taylored for F1 2022 Telemetry format
+"""
 sim_metrics = [
     "air_temperature",
     "brake",
@@ -178,9 +183,9 @@ def lookup_packet_id(packet_id):
     return dict[packet_id]
 
 
-# Sends metrics to SIM
 @background.task
 def send_metric(f1_metrics, f1_dimensions):
+    """Send metrics to SIM."""
     print("sim metric sent")
     telemetry_json = []
     f1_dimensions["f1-2022-hostname"] = hostname
@@ -194,6 +199,7 @@ def send_metric(f1_metrics, f1_dimensions):
 
 
 def send_dims_and_metrics(f1_json):
+    """Send and dimensions to SIM."""
     dimensions = [
         {key: car_dict[key] for key in sim_dimensions if key in car_dict}
         for car_dict in f1_json
@@ -206,13 +212,13 @@ def send_dims_and_metrics(f1_json):
 
     for f1_metrics, f1_dimensions in zip(metrics, dimensions):
         if len(f1_metrics) >= 1:
-            # Send current row to SIM
+            """Send current row to SIM."""
             send_metric(f1_metrics, f1_dimensions)
 
 
-# Function to send raw unprocessed event to hec
 @background.task
 def send_hec_json(data, packet_id):
+    """Send raw unprocessed event to hec."""
     global hostname
     global player_name
     global sesh
@@ -229,7 +235,7 @@ def send_hec_json(data, packet_id):
     hec_payload = hec_payload + json.dumps(event)
 
     url = str(splunk_hec_ip + ":" + splunk_hec_port + "/services/collector")
-    header = {"Authorization": "{}".format("Splunk " + splunk_hec_token)}
+    header = {"Authorization": f"Splunk {splunk_hec_token}"}
 
     try:
         response = sesh.post(url=url, data=hec_payload, headers=header, verify=False)
@@ -239,9 +245,9 @@ def send_hec_json(data, packet_id):
         print("Packet ID affected: " + lookup_packet_id(packet_id))
 
 
-# function to send multiple events to splunk enterprise env
 @background.task
 def send_hec_batch(event_rows, packet_id):
+    """Send multiple events to splunk enterprise env."""
     print("h")
     event_rows = [{key: str(dict[key]) for key in dict.keys()} for dict in event_rows]
 
@@ -259,8 +265,7 @@ def send_hec_batch(event_rows, packet_id):
         hec_payload = hec_payload + json.dumps(event)
 
     url = str(splunk_hec_ip + ":" + splunk_hec_port + "/services/collector")
-    header = {"Authorization": "{}".format("Splunk " + splunk_hec_token)}
-
+    header = {"Authorization": f"Splunk {splunk_hec_token}"}
     try:
         response = sesh.post(url=url, data=hec_payload, headers=header, verify=False)
         response.raise_for_status()
@@ -269,15 +274,14 @@ def send_hec_batch(event_rows, packet_id):
         print("Packet ID affected: " + lookup_packet_id(packet_id))
 
 
-#########################################
-# Data Stream Management and Processing
 def update_player_info(data):
+    """Perform Data Stream Management and Processing.."""
     global player_info
     player_info = data["participants"]
 
 
-# Flatten the F1-2022 sections that consist of fields, and lists of tyre info
 def flatten_fast(data):
+    """Flatten the F1-2022 sections that consist of fields, and lists of tyre info.."""
     blank_list = []
     car_index = 0
     for entry in data:
@@ -311,6 +315,7 @@ def flatten_fast(data):
 
 
 def flatten_car(data):
+    """Flatten Data."""
     data = flatten_fast(data)
 
     if debug is True:
@@ -321,7 +326,7 @@ def flatten_car(data):
 
 
 def merge_car_telemetry(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["car_telemetry_data"])
 
     # Augment with header and player info data
@@ -339,7 +344,7 @@ def merge_car_telemetry(data, header, playerCarIndex):
 
 
 def merge_car_motion(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["car_motion_data"])
 
     # Augment with header and player info data
@@ -384,7 +389,7 @@ def merge_car_motion(data, header, playerCarIndex):
 
 
 def merge_car_status(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["car_status_data"])
 
     # Augment with header and player info data
@@ -402,7 +407,7 @@ def merge_car_status(data, header, playerCarIndex):
 
 
 def merge_car_lap(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["lap_data"])
 
     # Augment with header and player info data
@@ -458,7 +463,7 @@ def merge_car_lap(data, header, playerCarIndex):
 
 
 def merge_car_setups(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["car_setups"])
 
     # Augment with header and player info data
@@ -476,7 +481,7 @@ def merge_car_setups(data, header, playerCarIndex):
 
 
 def merge_session(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["marshal_zones"])
 
     # Augment with header and player info data
@@ -517,7 +522,7 @@ def merge_session(data, header, playerCarIndex):
 
 
 def merge_final(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["classification_data"])
 
     # Augment with header and player info data
@@ -537,7 +542,7 @@ def merge_final(data, header, playerCarIndex):
 
 
 def merge_lobby(data, header, playerCarIndex):
-    # Flatten file format
+    """Flatten file format."""
     telemetry = flatten_car(data["lobby_players"])
 
     # Augment with header and player info data
