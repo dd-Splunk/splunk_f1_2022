@@ -4,3 +4,4 @@ PyYAML
 requests
 signalfx
 splunk-opentelemetry[all]
+pre-commit
