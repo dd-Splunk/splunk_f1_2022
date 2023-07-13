@@ -1,14 +1,15 @@
-###########################################################################################
-####                 Custom Code to run F1 Ingest as a Forwarding Script
-import time
-import signalfx
-import configparser
+##############################################################################
+#                Custom Code to run F1 Ingest as a Forwarding Script
 import argparse
+import configparser
 import json
-import requests
-import background
-import urllib3
+import time
 from datetime import datetime
+
+import background
+import requests
+import signalfx
+import urllib3
 from f1_22_telemetry.listener import TelemetryListener
 from requests.adapters import HTTPAdapter, Retry
 
@@ -312,7 +313,7 @@ def flatten_fast(data):
 def flatten_car(data):
     data = flatten_fast(data)
 
-    if debug == True:
+    if debug is True:
         for entry in data:
             entry.update({"checkpoint_2_payload_flattened": time.time()})
 
@@ -568,12 +569,12 @@ def massage_data(data):
     header = data["header"]
     playerCarIndex = data["header"]["player_car_index"]
 
-    if debug == True:
+    if debug is True:
         print(".")
         data["header"].update({"checkpoint_1_data_received": time.time()})
 
     if packet_id == 0:
-        if motion == True:
+        if motion is True:
             merged_data = merge_car_motion(data, header, playerCarIndex)
         else:
             return
@@ -582,7 +583,7 @@ def massage_data(data):
         merged_data = merge_session(data, header, playerCarIndex)
 
     if packet_id == 2:
-        if lap == True:
+        if lap is True:
             merged_data = merge_car_lap(data, header, playerCarIndex)
         else:
             return
@@ -602,13 +603,13 @@ def massage_data(data):
         merged_data = merge_car_setups(data, header, playerCarIndex)
 
     if packet_id == 6:
-        if telemetry == True:
+        if telemetry is True:
             merged_data = merge_car_telemetry(data, header, playerCarIndex)
         else:
             return
 
     if packet_id == 7:
-        if status == True:
+        if status is True:
             merged_data = merge_car_status(data, header, playerCarIndex)
         else:
             return
@@ -622,7 +623,7 @@ def massage_data(data):
     merged_data = [entry for entry in merged_data if entry["name"] != ""]
     # merged_data = merged_data[merged_data['name']!=""]
 
-    if debug == True:
+    if debug is True:
         for entry in merged_data:
             entry.update({"checkpoint_3_payload_processed": time.time()})
 
