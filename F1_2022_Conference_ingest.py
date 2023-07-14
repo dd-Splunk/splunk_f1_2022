@@ -186,7 +186,6 @@ def lookup_packet_id(packet_id):
 @background.task
 def send_metric(f1_metrics, f1_dimensions):
     """Send metrics to SIM."""
-    print("sim metric sent")
     telemetry_json = []
     f1_dimensions["f1-2022-hostname"] = hostname
 
@@ -248,7 +247,6 @@ def send_hec_json(data, packet_id):
 @background.task
 def send_hec_batch(event_rows, packet_id):
     """Send multiple events to splunk enterprise env."""
-    print("h")
     event_rows = [{key: str(dict[key]) for key in dict.keys()} for dict in event_rows]
 
     hec_payload = ""
@@ -575,7 +573,6 @@ def massage_data(data):
     playerCarIndex = data["header"]["player_car_index"]
 
     if debug is True:
-        print(".")
         data["header"].update({"checkpoint_1_data_received": time.time()})
 
     if packet_id == 0:
