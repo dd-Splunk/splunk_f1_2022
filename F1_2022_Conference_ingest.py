@@ -651,7 +651,11 @@ startup_payload = {
 if args["splunk"] == "yes":
     send_hec_batch([startup_payload], 99)
 
-listener = TelemetryListener(port=args["port"])
+listener = TelemetryListener(host="0.0.0.0", port=args["port"])
+"""Make sure to bind the listener to all interfaces
+    Otherwise it will  bind to 127.0.0.0 and will
+    not get the incoming data
+"""
 while True:
     packet = listener.get()
     massage_data(packet)
