@@ -1,8 +1,14 @@
 # splunk_f1_2022
 
-Ingest script for O11y and Core/Enterprise
+## Raspberry preparation
 
-```
+Launch the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+
+![md-bfd602be71b2c1099b91877aed3b41f0](assets/md-bfd602be71b2c1099b91877aed3b41f0.png)
+
+## Ingest script for O11y and Core/Enterprise
+
+```bash
 python3 -m venv venv
 . /venv/bin/activate
 pip3 install -r requirements.txt
@@ -10,7 +16,7 @@ pip3 install -r requirements.txt
 
 Edit `settings.ini`
 
-```
+```ini
 [ingest_settings]
 debug = True
 sim_token = xxx
@@ -26,7 +32,7 @@ lap = True
 status = True
 ```
 
-```
+```bash
 usage: F1_2022_Conference_ingest.py [-h] [--hostname HOSTNAME]
                                     [--player PLAYER] [--port PORT]
                                     [--o11y {yes,no}] [--splunk {yes,no}]
