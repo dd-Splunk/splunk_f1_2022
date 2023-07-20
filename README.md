@@ -9,6 +9,7 @@ Launch the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 ## Ingest script for O11y and Core/Enterprise
 
 ```sh
+#!/bin/bash
 python3 -m venv venv
 . /venv/bin/activate
 pip3 install -r requirements.txt
