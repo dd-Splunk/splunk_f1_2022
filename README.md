@@ -8,7 +8,7 @@ Launch the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 
 ## Ingest script for O11y and Core/Enterprise
 
-```bash
+```sh
 python3 -m venv venv
 . /venv/bin/activate
 pip3 install -r requirements.txt
@@ -32,7 +32,7 @@ lap = True
 status = True
 ```
 
-```bash
+```sh
 usage: F1_2022_Conference_ingest.py [-h] [--hostname HOSTNAME]
                                     [--player PLAYER] [--port PORT]
                                     [--o11y {yes,no}] [--splunk {yes,no}]
