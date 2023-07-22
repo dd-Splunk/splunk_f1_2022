@@ -6,6 +6,23 @@ Launch the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 
 ![md-bfd602be71b2c1099b91877aed3b41f0](assets/md-bfd602be71b2c1099b91877aed3b41f0.png)
 
+Add the expected fixed IP address to the Ethernet port in `sudo` mode:
+
+```sh
+cat <<EOF > /etc/network/interfaces.d/f1
+auto eth0:1
+iface eth0:1 inet static
+    address 192.168.0.1
+    netmask 255.255.255.0
+EOF
+```
+
+and start the new ( virtual ) interface:
+
+```sh
+/sbin/ifup eth0:1
+```
+
 ## Ingest script for O11y and Core/Enterprise
 
 ```sh
