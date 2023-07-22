@@ -29,11 +29,13 @@ and start the new ( virtual ) interface:
 
 ## Ingest script for O11y and Core/Enterprise
 
+Create and activate virtual Python environment:
+
 ```sh
 #!/bin/bash
-python3 -m venv venv
-. /venv/bin/activate
-pip3 install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 Edit `settings.ini`
@@ -54,22 +56,70 @@ lap = True
 status = True
 ```
 
+## Splunk DataDrivers
+
+Usage:
+
 ```sh
-usage: F1_2022_Conference_ingest.py [-h] [--hostname HOSTNAME]
-                                    [--player PLAYER] [--port PORT]
-                                    [--o11y {yes,no}] [--splunk {yes,no}]
-                                    [--mode {spectator,solo}]
-example: python3 F1_2022_Conference_ingest.py --o11y yes --mode solo --player ex_test
-
-Splunk DataDrivers
-
-options:
-  -h, --help            show this help message and exit
-  --hostname HOSTNAME   Hostname
-  --player PLAYER       Player Name
-  --port PORT           UDP Port
-  --o11y {yes,no}       Send data to O11y Cloud
-  --splunk {yes,no}     Send data to Splunk Enterprise/Cloud
-  --mode {spectator,solo}
-                        Spectator or Solo Mode
+F1_2022_Conference_ingest.py [-h] [--hostname HOSTNAME]
+                                  [--player PLAYER] [--port PORT]
+                                  [--o11y {yes,no}] [--splunk {yes,no}]
+                                  [--mode {spectator,solo}]
 ```
+
+Options:
+
+```sh
+  -h, --help              show this help message and exit
+  --hostname HOSTNAME     Hostname
+  --player PLAYER         Player Name
+  --port PORT             UDP Port
+  --o11y {yes,no}         Send data to O11y Cloud
+  --splunk {yes,no}       Send data to Splunk Enterprise/Cloud
+  --mode {spectator,solo} Spectator or Solo Mode
+```
+
+Example:
+
+```python F1_2022_Conference_ingest.py --o11y yes --mode solo --player EventPrefix_PlayerName```
+
+## Execution
+
+### Splunk side
+
+- Open splunk dashboard <https://dddemo.notsplunktshirtco.com/en-GB/app/sim_racing/best_lap_of_the_day__2022>
+- Log in with your credentials
+- Edit Splunk enterprise dashboard to only show `EventPrefix_PlayerName`:
+- Open O11y dashboard: <https://app.us1.signalfx.com/#/dashboard/Ffb7BDSA4AE?groupId=Ffb5pHKA0AA&configId=Ffb7BDlA0AA>
+- Start PS4
+
+### Playstation side
+
+Network setup manual via LAN:
+
+- IP manual
+- IP: 192.168.10.2
+- Subnet mask: 255:255:255:0
+- All other next (default option)
+
+Launch game:
+
+- Go to settings -> telemetry settings
+- Telemetry settings -> send to 192.168.1 ( Raspberry )
+
+### Raspberry side
+
+Login:
+`ssh splunk@192.168.0.1`
+
+Go To folder:
+`cd splunk_f1_2022_main`
+
+Check credentials in `settings.ini` file
+
+Start the virtual environment: `source .venv/bin/activate`
+
+For every person that races start and stop script:
+
+`python F1_2022_Conference_ingest.py --hostname MyHost --o11y yes --splunk yes --mode solo --player EventPrefix_PlayerName
+`
