@@ -4,7 +4,11 @@
 
 Launch the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 
-![md-bfd602be71b2c1099b91877aed3b41f0](assets/md-bfd602be71b2c1099b91877aed3b41f0.png)
+![Pi Imager](assets/pi-imager.png)
+
+Prepare the configuration
+
+![Settings](assets/settings.png)
 
 Add the expected fixed IP address to the Ethernet port in `sudo` mode:
 
