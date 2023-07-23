@@ -2,6 +2,8 @@
 
 ## Raspberry preparation
 
+### Create the SD Card
+
 Launch the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 
 ![Pi Imager](assets/pi-imager.png)
@@ -9,6 +11,20 @@ Launch the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 Prepare the configuration
 
 ![Settings](assets/settings.png)
+
+Choose another OS (not the 32 bits version)
+
+![Settings](assets/OS-Other.png)
+
+Choose the ful 64 bits version
+
+![Settings](assets/OS-64bits.png)
+
+Chosse the Storage, and start writing
+
+![Settings](assets/Storage.png)
+
+### Setup Networking
 
 Add the expected fixed IP address to the Ethernet port in `sudo` mode:
 
