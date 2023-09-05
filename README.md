@@ -135,7 +135,17 @@ Check credentials in `settings.ini` file
 
 Start the virtual environment: `source .venv/bin/activate`
 
-For every person that races start and stop script:
+For every person that races start and stop the script:
 
-`python F1_2022_Conference_ingest.py --hostname MyHost --o11y yes --splunk yes --mode solo --player EventPrefix_PlayerName
+`python3 F1_2022_Conference_ingest.py --hostname MyHost --o11y yes --splunk yes --mode solo --player EventPrefix_PlayerName
 `
+
+Alternatively, a small `bash` script is available:
+
+`./start.sh`
+
+You have to enter the player's name at the prompt and it will launch the ingest.
+
+Press `ctrl-c` to stop the collection for that player and start over with a new player.
+
+Enter `exit` at the prompt to quit the script
