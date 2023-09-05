@@ -16,7 +16,7 @@ Choose another OS (not the 32 bits version)
 
 ![Settings](assets/OS-Other.png)
 
-Choose the ful 64 bits version
+Choose the full 64 bits version
 
 ![Settings](assets/OS-64bits.png)
 
