@@ -127,9 +127,12 @@ Launch game:
 
 Login:
 `ssh splunk@192.168.10.1`
+or
+`ssh splunk@pi-f1.local`
+and `changeme`.
 
 Go To folder:
-`cd splunk_f1_2022_main`
+`cd splunk_f1_2022`
 
 Check credentials in `settings.ini` file
 
