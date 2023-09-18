@@ -32,7 +32,7 @@ Add the expected fixed IP address to the Ethernet port in `sudo` mode:
 cat <<EOF > /etc/network/interfaces.d/f1
 auto eth0:1
 iface eth0:1 inet static
-    address 192.168.0.1
+    address 192.168.10.1
     netmask 255.255.255.0
 EOF
 ```
@@ -121,12 +121,12 @@ Network setup manual via LAN:
 Launch game:
 
 - Go to settings -> telemetry settings
-- Telemetry settings -> send to 192.168.1 ( Raspberry )
+- Telemetry settings -> send to 192.168.10.1 ( Raspberry )
 
 ### Raspberry side
 
 Login:
-`ssh splunk@192.168.0.1`
+`ssh splunk@192.168.10.1`
 
 Go To folder:
 `cd splunk_f1_2022_main`
