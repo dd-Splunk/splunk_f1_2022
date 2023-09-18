@@ -135,10 +135,14 @@ Check credentials in `settings.ini` file
 
 Start the virtual environment: `source .venv/bin/activate`
 
+#### Legacy Script
+
 For every person that races start and stop the script:
 
 `python3 F1_2022_Conference_ingest.py --hostname MyHost --o11y yes --splunk yes --mode solo --player EventPrefix_PlayerName
 `
+
+#### Alternative Script
 
 Alternatively, a small `bash` script is available:
 
